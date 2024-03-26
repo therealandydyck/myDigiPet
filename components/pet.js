@@ -13,12 +13,13 @@ import { View, Button, Text } from "react-native";
 import { useState, useEffect } from "react";
 import React from "react";
 import PetStyles from "../stylesheets/petStyles";
-import petMood from "./petMood";
+// import petMood from "./petMood";
 
 export default function thePet() {
   const offset = useSharedValue(0);
   const petHeight = useSharedValue(100);
-  // const [petState, setPetState] = useState(null);
+  const [petState, setPetState] = useState(null);
+  const [petMood, setPetMood] = useState(10);
 
   const style = useAnimatedStyle(() => ({
     transform: [
@@ -34,7 +35,12 @@ export default function thePet() {
   const verticalSquish = 100;
   const durationTime = 250;
 
-  const handlePress = () => {
+  // Functions
+
+  /**
+   * Happy bounce animation for pet, may incorporate sound.
+   */
+  const happyBounce = () => {
     offset.value = withSequence(
       withRepeat(
         withTiming(-verticalTransform, {
@@ -58,28 +64,52 @@ export default function thePet() {
     );
   };
 
-  // useEffect((petMood) => {
-  //   if (petMood > 7) {
-  //     setPetState(PetStyles.petHappy);
-  //   }
+  /**
+   * Function to increase pet's mood counter
+   */
+  const moodUp = () => {
+    if (petMood < 10) {
+      setPetMood((f) => f + 1);
+    }
+    console.log(petMood);
+  };
 
-  //   if (4 < petMood < 8) {
-  //     setPetState(PetStyles.petContent);
-  //   }
+  /**
+   * Function to decrease pet mood
+   */
+  const moodDown = () => {
+    if (petMood > 0) {
+      setPetMood((f) => f - 1);
+    }
+    console.log(petMood);
+  };
 
-  //   if (petMood < 4) {
-  //     setPetState(PetStyles.petSad);
-  //   }
-  // });
+  // Triggers
+
+  useEffect(() => {
+    if (petMood > 7) {
+      setPetState(PetStyles.petHappy);
+    }
+
+    if (4 < petMood < 8) {
+      setPetState(PetStyles.petContent);
+    }
+
+    if (petMood < 4) {
+      setPetState(PetStyles.petSad);
+    }
+  }, [petMood]);
 
   return (
     <View>
       <View style={PetStyles.petBox}>
-        <Animated.View style={[PetStyles.petBody, style, petMood.petColour]}>
+        <Animated.View style={[PetStyles.petBody, style, petState]}>
           <Text style={PetStyles.petEyes}>O O</Text>
         </Animated.View>
       </View>
-      <Button title="bounce" onPress={handlePress} />
+      <Button title="bounce" onPress={happyBounce} />
+      <Button title="Increase Mood" onPress={moodUp} />
+      <Button title="Decrease Mood" onPress={moodDown} />
     </View>
   );
 }

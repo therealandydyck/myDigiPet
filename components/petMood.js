@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import PetStyles from "../stylesheets/petStyles";
 
-export default function petMood(petColour) {
+export default function petMood() {
   // moods: Happy, Sad, Angry, Content
   const [mood, setMood] = useState(10);
   const [petState, setPetState] = useState(null);
@@ -47,9 +47,9 @@ export default function petMood(petColour) {
         setPetState(PetStyles.petSad);
       }
     },
-    (petColour = petState),
+    petState,
     [mood]
   );
 
-  return mood;
+  return console.log(mood), mood;
 }
