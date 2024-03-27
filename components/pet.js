@@ -1,6 +1,7 @@
 import Animated, {
   useSharedValue,
   withClamp,
+  withDelay,
   withTiming,
   withSpring,
   Easing,
@@ -16,24 +17,35 @@ import PetStyles from "../stylesheets/petStyles";
 // import petMood from "./petMood";
 
 export default function thePet() {
-  const offset = useSharedValue(0);
+  const offsetY = useSharedValue(0);
+  const offsetX = useSharedValue(0);
   const petHeight = useSharedValue(100);
+  const rotation = useSharedValue(0);
+  const verticalTransform = 70;
+  const verticalSquish = 100;
+  const durationTime = 250;
+  const ANGLE = 10;
+  const TIME = 100;
+
   const [petState, setPetState] = useState(null);
   const [petMood, setPetMood] = useState(10);
+  const [petEyes, setPetEyes] = useState("O O");
 
   const style = useAnimatedStyle(() => ({
     transform: [
       {
         translateY:
-          (offset.value, withClamp({ max: 0 }, withSpring(offset.value))),
+          (offsetY.value, withClamp({ max: 0 }, withSpring(offsetY.value))),
+      },
+      {
+        translateX: (offsetX.value, { max: 0 }, withSpring(offsetX.value)),
+      },
+      {
+        rotateZ: `${rotation.value}deg`,
       },
     ],
     height: withSpring(petHeight.value),
   }));
-
-  const verticalTransform = 70;
-  const verticalSquish = 100;
-  const durationTime = 250;
 
   // Functions
 
@@ -41,7 +53,7 @@ export default function thePet() {
    * Happy bounce animation for pet, may incorporate sound.
    */
   const happyBounce = () => {
-    offset.value = withSequence(
+    offsetY.value = withSequence(
       withRepeat(
         withTiming(-verticalTransform, {
           duration: durationTime,
@@ -61,6 +73,37 @@ export default function thePet() {
       ),
       // go back to 0 at the end
       withTiming(100, { duration: durationTime / 2 })
+    );
+  };
+
+  /**
+   * Sad head shake animation
+   */
+
+  const sadShake = async () => {
+    withSequence(
+      setPetEyes("_ _"),
+      (rotation.value = withSequence(
+        // deviate left to start from -ANGLE
+        withTiming(-ANGLE, {
+          duration: durationTime / 2,
+          easing: Easing.elastic(1.5),
+        }),
+        // wobble between -ANGLE and ANGLE 7 times
+        withRepeat(
+          withTiming(ANGLE, {
+            duration: durationTime,
+            easing: Easing.elastic(1.5),
+          }),
+          7,
+          true
+        ),
+        // go back to 0 at the end
+        withTiming(0, {
+          duration: durationTime / 2,
+          easing: Easing.elastic(1.5),
+        })
+      ))
     );
   };
 
@@ -87,16 +130,16 @@ export default function thePet() {
   // Triggers
 
   useEffect(() => {
-    if (petMood > 7) {
-      setPetState(PetStyles.petHappy);
-    }
-
-    if (4 < petMood < 8) {
+    if (4 < petMood < 7) {
       setPetState(PetStyles.petContent);
     }
 
     if (petMood < 4) {
       setPetState(PetStyles.petSad);
+    }
+
+    if (petMood >= 7) {
+      setPetState(PetStyles.petHappy);
     }
   }, [petMood]);
 
@@ -104,10 +147,11 @@ export default function thePet() {
     <View>
       <View style={PetStyles.petBox}>
         <Animated.View style={[PetStyles.petBody, style, petState]}>
-          <Text style={PetStyles.petEyes}>O O</Text>
+          <Text style={PetStyles.petEyes}>{petEyes}</Text>
         </Animated.View>
       </View>
       <Button title="bounce" onPress={happyBounce} />
+      <Button title="Sad Shake" onPress={sadShake} />
       <Button title="Increase Mood" onPress={moodUp} />
       <Button title="Decrease Mood" onPress={moodDown} />
     </View>
