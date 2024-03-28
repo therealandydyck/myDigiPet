@@ -36,6 +36,7 @@ export default function thePet() {
   const [defaultPetEyes, setDefaultPetEyes] = useState("O O");
   const [petHunger, setPetHunger] = useState(20);
   const [moodDecay, setMoodDecay] = useState(10000);
+  const [triggerVar, setTriggerVar] = useState(0);
 
 
   /**
@@ -185,7 +186,7 @@ export default function thePet() {
   }, [sadShake]);
 
   /** 
-   * 
+   * Animation for pet feeding
    */
   const nomJiggle = () => {
     setPetEyes("*=  =*"),
@@ -208,28 +209,6 @@ export default function thePet() {
     return () => clearTimeout(setNormalEyes);
   }, [nomJiggle]);
 
-
-  /**
-   * Function to increase pet's mood counter
-   */
-  const moodUp = () => {
-    if (petMood < 10) {
-      setPetMood((f) => f + 1);
-      happyBounce();
-    }
-    console.log(petMood);
-  };
-
-  /**
-   * Function to decrease pet mood
-   */
-  const moodDown = () => {
-    if (petMood > 0) {
-      setPetMood((f) => f - 1);
-      sadShake();
-    }
-    console.log(petMood);
-  };
 
   /**
    * Feed pet function to boost hunger by 8, and boost mood by 5
@@ -285,6 +264,9 @@ export default function thePet() {
     }
   }
 
+  /**
+   * Hook that increases the rate that the pet's mood decays as it gets hungrier
+   */
   useEffect(() => {
     switch (petHunger) {
       case 20:
@@ -336,19 +318,22 @@ export default function thePet() {
    */
 
   useEffect(() => {
-    setTimeout(() => moodTick(), moodDecay);
+    setTimeout(() => {
+      moodTick(),
+      // unique value to trigger the hook recursively while updating the moodDecay on every render
+      setTriggerVar((f) => f + 1)
+    }, moodDecay);
     return () => clearTimeout();
-  }, [petMood]);
+  }, [triggerVar]);
 
   const moodTick = () => {
-    setTimeout(() => {if (petMood > 0) {
-      setPetMood((f) => f - 1)};
-    }, 1000)
-    return () => clearTimeout();
-  };
+      setPetMood((f) => f - 1)
+      
+    };
+   
 
   /**
-   * Hook to update pet colour as mood changes
+   * Hook to update pet colour as mood changes  
    */
   useEffect(() => {
     
@@ -385,7 +370,7 @@ export default function thePet() {
         </Animated.View>
       </View>
       </GestureHandlerRootView>
-      <Text>Pet Mood:{petMood}, Pet Hunger:{petHunger}Mood Decay:{moodDecay} </Text>
+      <Text>Pet Mood:{petMood}, Pet Fullness:{petHunger} Mood Decay:{moodDecay} </Text>
       <Button title="Save Current Mood" onPress={saveState}/>
       <Button title="Feed Pet" onPress={feedPet} />
       <Button title="Play" onPress={petPlay} />
