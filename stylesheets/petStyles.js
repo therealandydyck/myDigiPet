@@ -14,7 +14,7 @@ const petStyles = StyleSheet.create({
     width: 200,
   },
   petEyes: {
-    fontSize: 18,
+    fontSize: 28,
     textAlign: "center",
   },
   petHappy: {
