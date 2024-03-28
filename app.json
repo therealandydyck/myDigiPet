@@ -1,6 +1,11 @@
 {
   "expo": {
     "name": "myDigiPet",
-    "slug": "myDigiPet"
+    "slug": "myDigiPet",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    }
   }
 }
