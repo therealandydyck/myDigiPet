@@ -18,3 +18,9 @@
 ## 📝 Notes
 
 - [`react-native-reanimated` docs](https://docs.swmansion.com/react-native-reanimated/)
+
+## Dependencies
+
+- expo-file-system
+- react-native-reanimated
+- react-native-gesture-handler
